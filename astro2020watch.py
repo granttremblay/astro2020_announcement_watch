@@ -5,13 +5,10 @@ import requests
 import time
 import hashlib
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 from bs4 import BeautifulSoup
-
-
+import random
 from datetime import datetime
-import hashlib
-from urllib.request import urlopen
+
 
 
 def scrape_astro2020_announcements(url, driver):
@@ -47,6 +44,13 @@ def send_slack_message(message, channel='#general', blocks=None):
         'blocks': json.dumps(blocks) if blocks else None}).json()
 
 
+def sleep(seconds):
+    for i in range(seconds,0,-1):
+        print(f'Checking again in {i} seconds', end='\r')
+        sys.stdout.flush()
+        time.sleep(1)
+
+
 def main():
 
     # Instead of a channel, you can use your Slack user ID for a direct message
@@ -64,7 +68,10 @@ def main():
 
     while True:
 
+        sleep_period = 300 + random.randint(0, 120)
+
         try:
+
 
             if iteration_counter == 0:
                 print(
@@ -75,7 +82,7 @@ def main():
                     f'({datetime.now().strftime("%m/%d/%Y %H:%M:%S")}) Latest announcement is: \n\n {initial_announcement}')
                 send_slack_message(
                     f'Astro2020 Monitor Started. Reference announcement is: {initial_announcement}', slack_channel)
-                time.sleep(60)
+                sleep(sleep_period)
 
             iteration_counter += 1
             latest_announcement = scrape_astro2020_announcements(url, driver)
@@ -86,12 +93,16 @@ def main():
                 send_slack_message(
                     f'New Astro2020 announcement found! {latest_announcement}', slack_channel)
                 iteration_counter = 0
-                time.sleep(60)
+                sleep(sleep_period)
 
             elif initial_announcement == latest_announcement:
                 print(
                     f'({datetime.now().strftime("%m/%d/%Y %H:%M:%S")}) No change :( Checking again in 5 minutes.')
-                time.sleep(300)
+                for i in xrange(sleep_period,0,-1):
+                    sys.stdout.write(str(i)+' ')
+                    sys.stdout.flush()
+                    time.sleep(1)
+                sleep(sleep_period)
 
         except Exception as e:
             if error_counter == 0:
