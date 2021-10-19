@@ -98,7 +98,7 @@ def main():
             elif initial_announcement == latest_announcement:
                 print(
                     f'({datetime.now().strftime("%m/%d/%Y %H:%M:%S")}) No change :( Checking again in 5 minutes.')
-                for i in xrange(sleep_period,0,-1):
+                for i in range(sleep_period,0,-1):
                     sys.stdout.write(str(i)+' ')
                     sys.stdout.flush()
                     time.sleep(1)
