@@ -3,12 +3,10 @@
 import sys
 import requests
 import time
-import hashlib
 from selenium import webdriver
 from bs4 import BeautifulSoup
 import random
 from datetime import datetime
-
 
 
 def scrape_astro2020_announcements(url, driver):
@@ -17,7 +15,8 @@ def scrape_astro2020_announcements(url, driver):
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")  # for easier parsing
     stuff_of_interest = soup.find('p', {'class': 'card__title t3'})
-    latest_date = stuff_of_interest.find('span', {'class': 'announcement__date'}).get_text(strip=True)
+    latest_date = stuff_of_interest.find(
+        'span', {'class': 'announcement__date'}).get_text(strip=True)
     return latest_date
 
 
@@ -46,12 +45,15 @@ def send_slack_message(message, channel='#general', blocks=None):
 
 
 def sleep(seconds):
+    '''Count down the sleep period on the command line'''
     for i in range(0, seconds, 1):
-        print(f'Chilling for {seconds - i} seconds.               ', end='\r', flush=True)
+        print(
+            f'Chilling for {seconds - i} seconds.               ', end='\r', flush=True)
         time.sleep(1)
 
-def main():
 
+def main():
+    '''Scrape the Astro2020 site for the latest announcement date. If it changes, send a slack message to me.'''
     # Instead of a channel, you can use your Slack user ID for a direct message
     slack_channel = 'UAPFCCG1Z'
 
@@ -67,10 +69,9 @@ def main():
 
     while True:
 
-        sleep_period = 300 + random.randint(0, 120)
+        sleep_period = 300 + random.randint(0, 120) # this isn't a DDoS attack :)
 
         try:
-
 
             if iteration_counter == 0:
                 print(
@@ -97,7 +98,7 @@ def main():
             elif initial_announcement == latest_announcement:
                 print(
                     f'({datetime.now().strftime("%m/%d/%Y %H:%M:%S")}) No change :( Checking again in {round(sleep_period/60,1)} minutes.')
-                for i in range(sleep_period,0,-1):
+                for i in range(sleep_period, 0, -1):
                     sys.stdout.write(str(i)+' ')
                     sys.stdout.flush()
                     time.sleep(1)
@@ -110,9 +111,6 @@ def main():
                     f'Astro2020 code is crashing: {e}', channel=slack_channel)
                 error_counter += 1
                 sys.exit()
-
-
-
 
 
 if __name__ == '__main__':
