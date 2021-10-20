@@ -78,7 +78,7 @@ def main():
                 initial_announcement = scrape_astro2020_announcements(
                     url, driver)
                 print(
-                    f'({datetime.now().strftime("%m/%d/%Y %H:%M:%S")}) Latest announcement is: \n\n {initial_announcement}')
+                    f'({datetime.now().strftime("%m/%d/%Y %H:%M:%S")}) Reference announcement date is: {initial_announcement}')
                 send_slack_message(
                     f'Astro2020 Monitor Started. Reference announcement date is: {initial_announcement}', slack_channel)
                 sleep(sleep_period)
@@ -88,7 +88,7 @@ def main():
 
             if initial_announcement != latest_announcement:
                 print(
-                    f'({datetime.now().strftime("%m/%d/%Y %H:%M:%S")}) New announcement found! \n\n {latest_announcement}')
+                    f'({datetime.now().strftime("%m/%d/%Y %H:%M:%S")}) New announcement found! It is dated {latest_announcement}. CHECK THE SITE!')
                 send_slack_message(
                     f'New Astro2020 announcement found! Latest date is {latest_announcement} (referenence date was {initial_announcement}). CHECK THE SITE!', slack_channel)
                 iteration_counter = 0
