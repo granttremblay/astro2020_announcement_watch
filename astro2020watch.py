@@ -13,11 +13,12 @@ from datetime import datetime
 
 def scrape_astro2020_announcements(url, driver):
     driver.get(url)
-    time.sleep(10)  # Wait for the request to complete
+    sleep(10)
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")  # for easier parsing
-    announcements = soup.find('p', {'class': 'card__title t3'}).contents
-    return announcements
+    stuff_of_interest = soup.find('p', {'class': 'card__title t3'})
+    latest_date = stuff_of_interest.find('span', {'class': 'announcement__date'}).get_text(strip=True)
+    return latest_date
 
 
 def send_slack_message(message, channel='#general', blocks=None):
@@ -45,11 +46,9 @@ def send_slack_message(message, channel='#general', blocks=None):
 
 
 def sleep(seconds):
-    for i in range(seconds,0,-1):
-        print(f'Checking again in {i} seconds', end='\r')
-        sys.stdout.flush()
+    for i in range(0, seconds, 1):
+        print(f'Chilling for {seconds - i} seconds.               ', end='\r', flush=True)
         time.sleep(1)
-
 
 def main():
 
@@ -81,7 +80,7 @@ def main():
                 print(
                     f'({datetime.now().strftime("%m/%d/%Y %H:%M:%S")}) Latest announcement is: \n\n {initial_announcement}')
                 send_slack_message(
-                    f'Astro2020 Monitor Started. Reference announcement is: {initial_announcement}', slack_channel)
+                    f'Astro2020 Monitor Started. Reference announcement date is: {initial_announcement}', slack_channel)
                 sleep(sleep_period)
 
             iteration_counter += 1
@@ -91,13 +90,13 @@ def main():
                 print(
                     f'({datetime.now().strftime("%m/%d/%Y %H:%M:%S")}) New announcement found! \n\n {latest_announcement}')
                 send_slack_message(
-                    f'New Astro2020 announcement found! {latest_announcement}', slack_channel)
+                    f'New Astro2020 announcement found! Latest date is {latest_announcement} (referenence date was {initial_announcement}). CHECK THE SITE!', slack_channel)
                 iteration_counter = 0
                 sleep(sleep_period)
 
             elif initial_announcement == latest_announcement:
                 print(
-                    f'({datetime.now().strftime("%m/%d/%Y %H:%M:%S")}) No change :( Checking again in 5 minutes.')
+                    f'({datetime.now().strftime("%m/%d/%Y %H:%M:%S")}) No change :( Checking again in {round(sleep_period/60,1)} minutes.')
                 for i in range(sleep_period,0,-1):
                     sys.stdout.write(str(i)+' ')
                     sys.stdout.flush()
@@ -105,12 +104,15 @@ def main():
                 sleep(sleep_period)
 
         except Exception as e:
+            print(f'ERROR! {e}')
             if error_counter == 0:
                 send_slack_message(
                     f'Astro2020 code is crashing: {e}', channel=slack_channel)
                 error_counter += 1
-            print(e)
-            sys.exit()
+                sys.exit()
+
+
+
 
 
 if __name__ == '__main__':
