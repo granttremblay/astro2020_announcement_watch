@@ -20,10 +20,10 @@ def scrape_astro2020_announcements(url, driver):
     return latest_date
 
 
-def send_slack_message(message, channel='#general', blocks=None):
+def send_slack_message(message, channel='announcement-watch', blocks=None):
 
     # Make sure it's readable only to you, i.e. chmod og-rwx slackbot_oauth_token
-    slackbot_token_path = '/Users/grant/.slackbot/slackbot_oauth_token'
+    slackbot_token_path = '/Users/grant/.slackbot/astro2020_announcment_oauth_token'
 
     # Never push the token to github!
     with open(slackbot_token_path, 'r') as tokenfile:
@@ -31,8 +31,8 @@ def send_slack_message(message, channel='#general', blocks=None):
         slack_token = tokenfile.read().splitlines()[0]
 
     slack_channel = channel
-    slack_icon_url = 'https://avatars.slack-edge.com/2021-01-28/1695804235940_26ef808c676830611f43_512.png'
-    slack_user_name = 'HRC CommBot'
+    slack_icon_url = 'https://avatars.slack-edge.com/2021-10-20/2626830407027_f5a2fa7ea255f4ba8ab9_64.png'
+    slack_user_name = 'Astro2020 Monitor'
 
     # Populate a JSON to push to the Slack API.
     return requests.post('https://slack.com/api/chat.postMessage', {
@@ -55,7 +55,7 @@ def sleep(seconds):
 def main():
     '''Scrape the Astro2020 site for the latest announcement date. If it changes, send a slack message to me.'''
     # Instead of a channel, you can use your Slack user ID for a direct message
-    slack_channel = 'UAPFCCG1Z'
+    slack_channel = 'announcement-watch'
 
     url = 'https://www.nationalacademies.org/our-work/decadal-survey-on-astronomy-and-astrophysics-2020-astro2020'
 
@@ -98,10 +98,6 @@ def main():
             elif initial_announcement == latest_announcement:
                 print(
                     f'({datetime.now().strftime("%m/%d/%Y %H:%M:%S")}) No change :( Checking again in {round(sleep_period/60,1)} minutes.')
-                for i in range(sleep_period, 0, -1):
-                    sys.stdout.write(str(i)+' ')
-                    sys.stdout.flush()
-                    time.sleep(1)
                 sleep(sleep_period)
 
         except Exception as e:
