@@ -104,9 +104,9 @@ def main():
             print(f'ERROR! {e}')
             if error_counter == 0:
                 send_slack_message(
-                    f'Astro2020 code is crashing: {e}', channel=slack_channel)
+                    f'Encountered an error and pressing on: {e}', channel=slack_channel)
                 error_counter += 1
-                sys.exit()
+            continue
 
 
 if __name__ == '__main__':
