@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys
+import argparse
 import requests
 import time
 from selenium import webdriver
@@ -52,9 +52,23 @@ def sleep(seconds):
         time.sleep(1)
 
 
+
+def parse_args():
+    argparser = argparse.ArgumentParser()
+
+    argparser.add_argument('--silent_startup', action='store_true')
+
+    args = argparser.parse_args()
+
+    return args
+
+
 def main():
     '''Scrape the Astro2020 site for the latest announcement date. If it changes, send a slack message to me.'''
     # Instead of a channel, you can use your Slack user ID for a direct message
+
+    args = parse_args()
+
     slack_channel = 'announcement-watch'
 
     url = 'https://www.nationalacademies.org/our-work/decadal-survey-on-astronomy-and-astrophysics-2020-astro2020'
@@ -69,7 +83,7 @@ def main():
 
     while True:
 
-        sleep_period = 300 + random.randint(0, 120) # this isn't a DDoS attack :)
+        sleep_period = 120 + random.randint(0, 120) # this isn't a DDoS attack :)
 
         try:
 
@@ -80,8 +94,8 @@ def main():
                     url, driver)
                 print(
                     f'({datetime.now().strftime("%m/%d/%Y %H:%M:%S")}) Reference announcement date is: {initial_announcement}')
-                send_slack_message(
-                    f'Astro2020 Monitor Started. Reference announcement date is: {initial_announcement}', slack_channel)
+                if args.silent_startup is False:
+                    send_slack_message(f'Astro2020 Monitor Started. Reference announcement date is: {initial_announcement}', slack_channel)
                 sleep(sleep_period)
 
             iteration_counter += 1
